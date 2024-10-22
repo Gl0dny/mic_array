@@ -1,7 +1,7 @@
 
 
 import pyaudio
-import Queue
+import queue
 import threading
 import numpy as np
 from gcc_phat import gcc_phat
@@ -22,7 +22,7 @@ class MicArray(object):
 
     def __init__(self, rate=16000, channels=8, chunk_size=None):
         self.pyaudio_instance = pyaudio.PyAudio()
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.quit_event = threading.Event()
         self.channels = channels
         self.sample_rate = rate
