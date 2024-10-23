@@ -13,11 +13,6 @@ SOUND_SPEED = 343.2
 MIC_DISTANCE_6 = 0.09218
 MAX_TDOA_6 = MIC_DISTANCE_6 / float(SOUND_SPEED)
 
-MIC_DISTANCE_4 = 0.08127
-MAX_TDOA_4 = MIC_DISTANCE_4 / float(SOUND_SPEED)
-
-
-
 class MicArray(object):
 
     def __init__(self, rate=16000, channels=8, chunk_size=None):
@@ -89,7 +84,7 @@ class MicArray(object):
         best_guess = None
         if self.channels == 8:
             MIC_GROUP_N = 3
-            MIC_GROUP = [[1, 4], [2, 5], [3, 6]]
+            MIC_GROUP = [[0, 3], [1, 4], [2, 5]]
 
             tau = [0] * MIC_GROUP_N
             theta = [0] * MIC_GROUP_N
@@ -105,59 +100,9 @@ class MicArray(object):
             else:
                 best_guess = (180 - theta[min_index])
 
-            best_guess = (best_guess + 120 + min_index * 60) % 360
-        elif self.channels == 4:
-            MIC_GROUP_N = 2
-            MIC_GROUP = [[0, 2], [1, 3]]
-
-            tau = [0] * MIC_GROUP_N
-            theta = [0] * MIC_GROUP_N
-            for i, v in enumerate(MIC_GROUP):
-                tau[i], _ = gcc_phat(buf[v[0]::4], buf[v[1]::4], fs=self.sample_rate, max_tau=MAX_TDOA_4, interp=1)
-                theta[i] = math.asin(tau[i] / MAX_TDOA_4) * 180 / math.pi
-
-            if np.abs(theta[0]) < np.abs(theta[1]):
-                if theta[1] > 0:
-                    best_guess = (theta[0] + 360) % 360
-                else:
-                    best_guess = (180 - theta[0])
-            else:
-                if theta[0] < 0:
-                    best_guess = (theta[1] + 360) % 360
-                else:
-                    best_guess = (180 - theta[1])
-
-                best_guess = (best_guess + 90 + 180) % 360
-
-
-            best_guess = (-best_guess + 120) % 360
-
-             
-        elif self.channels == 2:
-            pass
+            best_guess = (best_guess + 30 + min_index * 60) % 360
 
         return best_guess
-
-
-def test_4mic():
-    import signal
-    import time
-
-    is_quit = threading.Event()
-
-    def signal_handler(sig, num):
-        is_quit.set()
-        print('Quit')
-
-    signal.signal(signal.SIGINT, signal_handler)
- 
-    with MicArray(16000, 4, 16000 / 4)  as mic:
-        for chunk in mic.read_chunks():
-            direction = mic.get_direction(chunk)
-            print(int(direction))
-
-            if is_quit.is_set():
-                break
 
 
 def test_8mic():
@@ -186,5 +131,4 @@ def test_8mic():
 
 
 if __name__ == '__main__':
-    # test_4mic()
     test_8mic()
