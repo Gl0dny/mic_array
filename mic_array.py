@@ -10,8 +10,8 @@ import math
 
 SOUND_SPEED = 343.2
 
-MIC_DISTANCE_6P1 = 0.064
-MAX_TDOA_6P1 = MIC_DISTANCE_6P1 / float(SOUND_SPEED)
+MIC_DISTANCE_6 = 0.09218
+MAX_TDOA_6 = MIC_DISTANCE_6 / float(SOUND_SPEED)
 
 MIC_DISTANCE_4 = 0.08127
 MAX_TDOA_4 = MIC_DISTANCE_4 / float(SOUND_SPEED)
@@ -96,8 +96,8 @@ class MicArray(object):
 
             # buf = np.fromstring(buf, dtype='int16')
             for i, v in enumerate(MIC_GROUP):
-                tau[i], _ = gcc_phat(buf[v[0]::8], buf[v[1]::8], fs=self.sample_rate, max_tau=MAX_TDOA_6P1, interp=1)
-                theta[i] = math.asin(tau[i] / MAX_TDOA_6P1) * 180 / math.pi
+                tau[i], _ = gcc_phat(buf[v[0]::8], buf[v[1]::8], fs=self.sample_rate, max_tau=MAX_TDOA_6, interp=1)
+                theta[i] = math.asin(tau[i] / MAX_TDOA_6) * 180 / math.pi
 
             min_index = np.argmin(np.abs(tau))
             if (min_index != 0 and theta[min_index - 1] >= 0) or (min_index == 0 and theta[MIC_GROUP_N - 1] < 0):
